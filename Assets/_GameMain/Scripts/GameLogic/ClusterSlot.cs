@@ -4,17 +4,11 @@ using UnityEngine;
 public class ClusterSlot : MonoBehaviour
 {
     private DraggableCluster currentCluster;
-
-    private void Start()
-    {
-        Initialize(Vector2.one * 200);
-    }
-
-    public void Initialize(Vector2 size)
+    public void Initialize() 
     {
         if (GetComponent<Collider2D>() == null)
         {
-            gameObject.AddComponent<BoxCollider2D>().size = size;
+            gameObject.AddComponent<BoxCollider2D>().size = Vector2.one * 200;
         }
     }
 

@@ -3,12 +3,21 @@ using UnityEngine.EventSystems;
 
 public class DraggableCluster : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
-    [SerializeField] private Transform clusterPanel;
     [SerializeField] private LayerMask slotLayerMask;
 
+    private string text;
+    private string targetWord;
+    private Transform clusterPanel;
     private ClusterSlot previousSlot;
     private bool isLocked;
 
+    public void Initialize(string inText, string inTargetWord, Transform inClusterPanel)
+    {
+        text = inText;
+        targetWord = inTargetWord;
+        clusterPanel = inClusterPanel;
+    }
+    
     public void OnPointerDown(PointerEventData eventData)
     {
         if (isLocked) return;
@@ -57,6 +66,7 @@ public class DraggableCluster : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     public void ReturnToPanel()
     {
         transform.SetParent(clusterPanel);
+        transform.SetAsFirstSibling();
         transform.localPosition = Vector3.zero;
 
         if (previousSlot)
