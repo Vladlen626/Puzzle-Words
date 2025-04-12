@@ -1,40 +1,45 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelGenerator : MonoBehaviour
 {
-    [SerializeField] private LevelData levelDataTEST;
     [SerializeField] private Transform clustersContainer;
     [SerializeField] private Transform wordsContainer;
     [SerializeField] private GameObject wordRowPrefab;
     [SerializeField] private GameObject clusterPrefab;
-
-    private void Start()
+    
+    public List<WordRow> GenerateWordRows(LevelData levelData)
     {
-        GenerateSlots(levelDataTEST);
-        GenerateClusters(levelDataTEST);
-    }
-
-    private void GenerateSlots(LevelData levelData)
-    {
+        var wordRows = new List<WordRow>();
+        
         foreach (var wordData in levelData.words)
         {
             var row = Instantiate(wordRowPrefab, wordsContainer);
             var wordRow = row.GetComponent<WordRow>();
             wordRow.Initialize(wordData.clusters.Length);
+            wordRows.Add(wordRow);
         }
+
+        return wordRows;
     }
 
-    private void GenerateClusters(LevelData levelData)
+    public void GenerateClusters(LevelData levelData)
     {
         foreach (var wordData in levelData.words)
         {
-            foreach (var cluster in wordData.clusters)
+            for (var i = 0; i < wordData.clusters.Length; i++)
             {
                 var clusterObj = Instantiate(clusterPrefab, clustersContainer);
+                
+                var data = clusterObj.GetComponent<ClusterData>();
+                data.Initialize(wordData.clusters[i], wordData.word, i);
+                
                 var draggable = clusterObj.GetComponent<DraggableCluster>();
-                draggable.Initialize(cluster, wordData.word, clustersContainer);
+                draggable.Initialize(data, clustersContainer);
             }
         }
+        
+        clustersContainer.GetComponent<ChildShuffler>()?.ShuffleChildren();
     }
 }

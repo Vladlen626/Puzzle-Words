@@ -1,3 +1,4 @@
 {
-	"name": "UI"
+	"name": "UI",
+	"references": ["Unity.TextMeshPro","GameLogic","UniRx"]
 }

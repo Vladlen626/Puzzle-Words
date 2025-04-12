@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -5,22 +6,22 @@ public class DraggableCluster : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 {
     [SerializeField] private LayerMask slotLayerMask;
 
-    private string text;
-    private string targetWord;
+    public Action<ClusterData> OnInit;
+
+    private ClusterData clusterData;
     private Transform clusterPanel;
     private ClusterSlot previousSlot;
-    private bool isLocked;
 
-    public void Initialize(string inText, string inTargetWord, Transform inClusterPanel)
+    public void Initialize(ClusterData data, Transform inClusterPanel)
     {
-        text = inText;
-        targetWord = inTargetWord;
+        clusterData = data;
         clusterPanel = inClusterPanel;
+        OnInit?.Invoke(clusterData);
     }
-    
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (isLocked) return;
+        if (clusterData.IsLocked.Value) return;
         previousSlot?.ClearCluster();
         transform.SetParent(GetComponentInParent<Canvas>().transform);
     }
@@ -42,7 +43,7 @@ public class DraggableCluster : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (isLocked) return;
+        if (clusterData.IsLocked.Value) return;
         transform.position = eventData.position;
     }
 
@@ -58,16 +59,37 @@ public class DraggableCluster : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         return false;
     }
 
+    public string GetTargetWord()
+    {
+        return clusterData.TargetWord;
+    }
+
+    public bool IsLocked()
+    {
+        return clusterData.IsLocked.Value;
+    }
+
+    public int GetIndex()
+    {
+        return clusterData.Index;
+    }
+
+    public void Lock()
+    {
+        clusterData.IsLocked.Value = true;
+    }
+
     public ClusterSlot TryGetPreviousSlot()
     {
         return previousSlot;
     }
-    
+
     public void ReturnToPanel()
     {
         transform.SetParent(clusterPanel);
         transform.SetAsFirstSibling();
         transform.localPosition = Vector3.zero;
+        clusterData.IsLocked.Value = false;
 
         if (previousSlot)
         {
